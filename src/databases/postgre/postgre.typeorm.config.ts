@@ -13,6 +13,7 @@ export const PostgreTypeOrmModule = TypeOrmModule.forRootAsync({
       password: configService.get<string>('POSTGRE_PASSWORD'),
       database: configService.get<string>('POSTGRE_DATABASE'),
       synchronize: true,
+      autoLoadEntities: true,
     };
 
     console.log('PostgreSQL connected !');
