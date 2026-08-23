@@ -1,11 +1,4 @@
-import {
-  IsDecimal,
-  IsNumber,
-  IsObject,
-  IsString,
-  IsUrl,
-  Validate,
-} from 'class-validator';
+import { IsNumber, IsObject, IsString, IsUrl, Validate } from 'class-validator';
 import { CvProductSpecs } from '../custom-validators/CvProductSpects';
 import { ApiProperty } from '@nestjs/swagger';
 
