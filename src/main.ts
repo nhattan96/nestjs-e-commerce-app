@@ -2,11 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { ResponseFormatInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  // Use the ResponseFormatInterceptor globally for structured API responses
+  app.useGlobalInterceptors(new ResponseFormatInterceptor());
 
   // Swagger configuration
   const config = new DocumentBuilder()

@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
+import {
+  DefaultData,
+  DefaultResponse,
+} from 'src/common/interceptors/transform.interceptor';
 
 @Injectable()
 export class ProductsService {
@@ -12,13 +16,28 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
   ) {}
 
-  create(createProductDto: CreateProductDto) {
-    const product = this.productRepository.create(createProductDto);
-    return this.productRepository.save(product);
+  async create(req: CreateProductDto): Promise<DefaultResponse<DefaultData>> {
+    const product = this.productRepository.create(req);
+
+    await this.productRepository.save(product);
+
+    return {
+      data: product,
+    };
   }
 
-  findAll() {
-    return this.productRepository.find();
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<DefaultResponse<DefaultData>> {
+    const products = await this.productRepository.find({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data: products,
+    };
   }
 
   findOne(id: string) {

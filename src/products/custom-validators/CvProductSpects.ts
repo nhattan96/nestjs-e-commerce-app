@@ -16,7 +16,10 @@ export class CvProductSpecs implements ValidatorConstraintInterface {
     if (keys.length === 0) return true;
 
     return keys.every(
-      (key) => this.acceptedSpecs.includes(key) && specs[key].trim() !== '',
+      (key) =>
+        this.acceptedSpecs.includes(key) &&
+        typeof specs[key] === 'string' &&
+        specs[key].trim() !== '',
     );
   }
 }

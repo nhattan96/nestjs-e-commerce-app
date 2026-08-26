@@ -1,4 +1,11 @@
-import { IsNumber, IsObject, IsString, IsUrl, Validate } from 'class-validator';
+import {
+  IsNumber,
+  IsObject,
+  IsPositive,
+  IsString,
+  IsUrl,
+  Validate,
+} from 'class-validator';
 import { CvProductSpecs } from '../custom-validators/CvProductSpects';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -28,11 +35,21 @@ export class CreateProductDto {
   })
   price: number;
 
+  @IsNumber()
+  @IsPositive({
+    message: 'Stock must be a positive number',
+  })
+  @ApiProperty({
+    description: 'The stock quantity of the product',
+    example: 10,
+  })
+  stock: number;
+
   @IsObject({
     message: 'Specs must be an object',
   })
   @Validate(CvProductSpecs, {
-    message: 'Specs must be an object with valid keys and values',
+    message: 'Specs must be an object with valid keys and string values',
   })
   @ApiProperty({
     description: 'The specifications of the product',

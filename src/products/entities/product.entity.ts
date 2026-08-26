@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Order } from 'src/orders/entities/order.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('products')
 export class Product {
@@ -25,4 +26,11 @@ export class Product {
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   updatedAt!: Date;
+
+  @Column('int', { default: 0 })
+  stock!: number;
+
+  // Relationships
+  @OneToMany(() => Order, (order) => order.product)
+  orders!: Order[];
 }
