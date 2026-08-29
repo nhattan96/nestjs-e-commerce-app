@@ -7,8 +7,8 @@ import { Product } from 'src/products/entities/product.entity';
 import { Repository } from 'typeorm';
 import {
   DefaultData,
-  DefaultResponse,
-} from 'src/common/interceptors/transform.interceptor';
+  DefaultAPIResponseResponse,
+} from 'src/common/interceptors/api-response.interceptor';
 import { PaginationService } from 'src/common/pagination/pagination.service';
 
 @Injectable()
@@ -53,7 +53,7 @@ export class OrdersService {
   async findAll(
     page: number,
     limit: number,
-  ): Promise<DefaultResponse<DefaultData>> {
+  ): Promise<DefaultAPIResponseResponse<DefaultData>> {
     const orders = await this.orderRepository.find({
       skip: (page - 1) * limit,
       take: limit,
@@ -75,7 +75,7 @@ export class OrdersService {
     };
   }
 
-  async findOne(id: string): Promise<DefaultResponse<DefaultData>> {
+  async findOne(id: string): Promise<DefaultAPIResponseResponse<DefaultData>> {
     const order = await this.orderRepository.findOne({
       where: { id },
       select: {
@@ -94,9 +94,8 @@ export class OrdersService {
 
     if (!order) {
       return {
+        success: false,
         message: 'Order not found',
-        messageCode: '404',
-        statusCode: 404,
       };
     }
 
@@ -108,7 +107,7 @@ export class OrdersService {
   async update(
     id: string,
     updateOrderDto: UpdateOrderDto,
-  ): Promise<DefaultResponse<DefaultData>> {
+  ): Promise<DefaultAPIResponseResponse<DefaultData>> {
     const order = await this.orderRepository.findOne({ where: { id } });
     if (!order) {
       throw new Error('Order not found');
@@ -122,7 +121,7 @@ export class OrdersService {
     };
   }
 
-  async remove(id: string): Promise<DefaultResponse<DefaultData>> {
+  async remove(id: string): Promise<DefaultAPIResponseResponse<DefaultData>> {
     const order = await this.orderRepository.findOne({ where: { id } });
     if (!order) {
       throw new Error('Order not found');
