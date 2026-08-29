@@ -9,10 +9,13 @@ import {
   DefaultData,
   DefaultResponse,
 } from 'src/common/interceptors/transform.interceptor';
+import { PaginationService } from 'src/common/pagination/pagination.service';
 
 @Injectable()
 export class OrdersService {
   constructor(
+    private paginationService: PaginationService,
+
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
 
@@ -58,8 +61,17 @@ export class OrdersService {
         product: true,
       },
     });
+
+    const totalItems = await this.orderRepository.count();
+
+    const paginationMeta = this.paginationService.getPaginationMeta(
+      page,
+      limit,
+      totalItems,
+    );
+
     return {
-      data: orders,
+      data: { orders, paginationMeta },
     };
   }
 
