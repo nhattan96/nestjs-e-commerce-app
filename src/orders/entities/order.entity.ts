@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { EOrderStatus } from '../enum/order.enum';
 import { Product } from 'src/products/entities/product.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Entity('orders')
 export class Order {
@@ -28,4 +29,7 @@ export class Order {
 
   @ManyToOne(() => Product, (product) => product.orders)
   product!: Product;
+
+  @ManyToOne(() => User, (user) => user.orders)
+  customer!: User;
 }

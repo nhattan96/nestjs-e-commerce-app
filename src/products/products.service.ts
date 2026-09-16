@@ -4,42 +4,72 @@ import {
   DefaultAPIResponseResponse,
   DefaultData,
 } from 'src/common/interceptors/api-response.interceptor';
-import { Repository } from 'typeorm';
+import { FindManyOptions, ObjectLiteral, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 
-class findBuilderPattern {
-  private repository: Repository<any>;
-  private page: number;
-  private limit: number;
+class findBuilderPattern<T extends ObjectLiteral> {
+  private repository: Repository<T>;
+  private page?: number;
+  private limit?: number;
+  private query: FindManyOptions<T> = {};
 
-  setRepository(repository: Repository<any>): findBuilderPattern {
+  setRepository(repository: Repository<T>): findBuilderPattern<T> {
     this.repository = repository;
     return this;
   }
 
-  setPage(page: number): findBuilderPattern {
-    this.page = page;
-    return this;
-  }
+  setPagination(page: number, limit: number): this {
+    if (page < 1) {
+      throw new Error('Page must be greater than 0');
+    }
+    if (limit < 1) {
+      throw new Error('Limit must be greater than 0');
+    }
 
-  setLimit(limit: number): findBuilderPattern {
+    this.page = page;
     this.limit = limit;
     return this;
   }
 
+  setQuery(query: FindManyOptions<T>): this {
+    if (!this.repository) {
+      throw new Error('Repository is not set');
+    }
+
+    this.query = {
+      ...this.query,
+      ...query,
+    };
+
+    return this;
+  }
+
   async find(): Promise<DefaultAPIResponseResponse<DefaultData>> {
-    return this.repository
-      .find({
-        skip: (this.page - 1) * this.limit,
-        take: this.limit,
-      })
-      .then((data) => {
-        return {
-          data: data,
-        };
-      });
+    if (!this.repository) {
+      throw new Error('Repository is not set');
+    }
+
+    const options: FindManyOptions<T> = {};
+
+    if (this.page !== undefined && this.limit !== undefined) {
+      options.skip = (this.page - 1) * this.limit;
+      options.take = this.limit;
+    }
+
+    if (this.query) {
+      options.where = this.query.where;
+      options.relations = this.query.relations;
+      options.order = this.query.order;
+      options.select = this.query.select;
+    }
+
+    return this.repository.find(options).then((data) => {
+      return {
+        data,
+      };
+    });
   }
 }
 
@@ -71,15 +101,17 @@ export class ProductsService {
     //   take: limit,
     // });
 
-    const products = await new findBuilderPattern()
-      .setPage(page)
-      .setLimit(limit)
+    const products = await new findBuilderPattern<Product>()
       .setRepository(this.productRepository)
+      .setPagination(page, limit)
+      .setQuery({
+        where: {
+          name: 'iPhone 14',
+        },
+      })
       .find();
 
-    return {
-      data: products,
-    };
+    return products;
   }
 
   findOne(id: string) {
